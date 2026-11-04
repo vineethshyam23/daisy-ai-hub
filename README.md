@@ -8,9 +8,9 @@ Built with a 2-person team. I owned product direction, GCP infrastructure, and a
 
 ## Why this exists in my portfolio
 
-DAISY (Digital AI System for Your team) was a sandboxed internal experiment: give every employee a single UI to try Vertex AI Gemini against real work tasks, without touching production systems. It proved the concept cleanly — 129 authenticated users, real adoption, zero incidents in production — before Anthropic Claude and native Google Workspace AI made it redundant.
+DAISY started as a simple question: can non-engineers use Gemini for real work without needing a GCP account or knowing how to write prompts? The answer turned out to be yes, if you wrap the API in task-specific forms rather than a generic chat window.
 
-It is now decommissioned. I open-sourced a sanitized version as a reference architecture for a full-stack GCP AI application.
+129 users, 3 months in production, then decommissioned when Anthropic Claude rolled out org-wide. That's not a failure — that was always the exit condition. I open-sourced a sanitized version because the architecture is worth sharing even if the product isn't running anymore.
 
 ---
 

@@ -88,10 +88,10 @@ Environment variables are injected at Cloud Run deploy time (not baked into the 
 
 ## Design Decisions
 
-**Why not a monorepo?** Frontend and backend deploy independently on different cadences. Keeping them as separate Cloud Run services allows independent scaling (Gemini API calls can be slow; front-end assets are fast).
+Frontend and backend are separate repos deploying to separate Cloud Run services. This wasn't a strong architectural opinion — it was practical. Frontend changes were iterative and fast, backend changes were slower and involved model config. Coupling the deploys would have meant every CSS tweak waiting on a backend image build. The downside is two Dockerfiles, two CI pipelines, and two sets of env vars to manage. At this team size that's fine.
 
-**Why Secret Manager for the API token instead of env vars?** Rotation without redeployment. The backend loads the token once at startup — to rotate, update the secret in Secret Manager and restart the Cloud Run instance.
+Secret Manager for the API token was about rotation. An env var baked into the Cloud Run config means a redeploy to rotate. Secret Manager means update the secret, restart the instance. For an internal tool that might be a 2am decision if something leaks, that matters.
 
-**Why Pinia over Vuex?** Nuxt 3 native, better TypeScript support, simpler API. No major tradeoff for this scale.
+Pinia over Vuex: Nuxt 3 is Pinia-native and the TypeScript support is significantly cleaner. No real tradeoffs at this scale.
 
-**Why not use Firebase ID tokens for backend auth?** Would require the backend to call Firebase Admin SDK on every request. The shared Bearer token is simpler for a service-to-service pattern at this scale, and per-user auth was not needed at the backend layer.
+The backend doesn't verify Firebase ID tokens — it only checks a shared Bearer token. Someone will read this and think it's a security hole. It's not for a service-to-service pattern at this scale: the frontend is the authenticated surface, Firebase handles that, and the backend just needs to know the request came from the frontend, not from random internet traffic. If we'd needed per-user rate limiting or audit logs at the backend layer, we would have added Firebase Admin SDK verification. We didn't need it.
