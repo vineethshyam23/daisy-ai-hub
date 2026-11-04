@@ -1,0 +1,29 @@
+# Google Cloud Platform Configuration
+# Replace these values with your own GCP project details.
+# Alternatively, set GCP_PROJECT and GCP_REGION environment variables —
+# those take priority over this file.
+
+# Project settings
+project_id: "your-gcp-project-id"
+project_number: "your-gcp-project-number"
+
+# Authentication settings
+secret_manager:
+  api_token_secret: "ai-hub-api-token"
+  project_for_secrets: "your-gcp-project-number"
+
+# LLM settings
+llm_model_name: "gemini-2.5-flash-lite"
+llm_model_location: "europe-west4"
+
+# Image generation settings
+image_model_name: "imagen-4.0-generate-001"
+image_model_location: "europe-west4"
+image_settings:
+  safety_filter_level: "BLOCK_ONLY_HIGH"
+  person_generation: "ALLOW_ADULT"
+  add_watermark: true
+
+# BigQuery settings (optional — only needed if API usage tracking is enabled)
+gbq_data_set: "your_dataset"
+gbq_table_name: "ai_hub_api_tracking"

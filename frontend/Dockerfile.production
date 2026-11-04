@@ -1,0 +1,52 @@
+# Multi-stage build for production Cloud Run deployment
+FROM node:18-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production --silent
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine AS runner
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nuxtjs
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nuxtjs:nodejs /app/.output ./
+COPY --from=builder --chown=nuxtjs:nodejs /app/package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production --silent && npm cache clean --force
+
+# Switch to non-root user
+USER nuxtjs
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables for Cloud Run
+ENV NODE_ENV=production
+ENV NUXT_HOST=0.0.0.0
+ENV NUXT_PORT=3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/auth-token', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start the application
+CMD ["node", "server/index.mjs"]
